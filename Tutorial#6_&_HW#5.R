@@ -20,7 +20,7 @@ unique(ETdat$crop)
 # In-class pistachios
 # average fields for each month for pistachios
 pistachios <- ETdat %>% # ET data
-  filter(crop == "Pistachios") %>% # only use almond fields
+  filter(crop == "Pistachios") %>% # only use pisachios fields
   group_by(date) %>% # calculate over each date
   summarise(ET.in = mean(Ensemble.ET, na.rm=TRUE)) # average fields
 
@@ -176,6 +176,158 @@ write.csv(regTable, "/cloud/project/reg_out.csv")
 
 
 
+
+
+
+
+# Question #2
+# Decomposing Time Series for different crops
+
+# Almonds
+
+# average fields for each month for almonds
+almond <- ETdat %>% # ET data
+  filter(crop == "Almonds") %>% # only use almond fields
+  group_by(date) %>% # calculate over each date
+  summarise(ET.in = mean(Ensemble.ET, na.rm=TRUE)) # average fields
+
+# visualize the data
+ggplot(almond, aes(x=ymd(date),y=ET.in))+
+  geom_point()+
+  geom_line()+
+  labs(x="year", y="Monthy evapotranspiration (in)")
+
+# almond ET time series
+almond_ts <- ts(almond$ET.in, # data
+                start = c(2016,1), #start year 2016, month 1
+                #first number is unit of time and second is observations within a unit
+                frequency= 12) # frequency of observations in a unit
+
+# decompose almond ET time series
+almond_dec <- decompose(almond_ts)
+# plot decomposition
+plot(almond_dec)
+
+
+
+
+
+# Pistachios 
+
+# average fields for each month for pistachios
+pistachios <- ETdat %>% # ET data
+  filter(crop == "Pistachios") %>% # only use pisachios fields
+  group_by(date) %>% # calculate over each date
+  summarise(ET.in = mean(Ensemble.ET, na.rm=TRUE)) # average fields
+
+# visualize the data
+ggplot(pistachios, aes(x=ymd(date),y=ET.in))+
+  geom_point()+
+  geom_line()+
+  labs(x="year", y="Monthy evapotranspiration (in)")
+
+# pistachio ET time series
+pistachios_ts <- ts(pistachios$ET.in, # data
+                    start = c(2016,1), #start year 2016, month 1
+                    #first number is unit of time and second is observations within a unit
+                    frequency= 12) # frequency of observations in a unit
+
+# decompose pistachios ET time series
+pistachios_dec <- decompose(pistachios_ts)
+# plot decomposition
+plot(pistachios_dec)
+
+
+
+# Fallow / Idle
+
+# average fields for each month for Fallow / Idle
+fallow <- ETdat %>% # ET data
+  filter(crop == "Fallow/Idle Cropland") %>% # only use Fallow/Idle Cropland fields
+  group_by(date) %>% # calculate over each date
+  summarise(ET.in = mean(Ensemble.ET, na.rm=TRUE)) # average fields
+
+# visualize the data
+ggplot(fallow, aes(x=ymd(date),y=ET.in))+
+  geom_point()+
+  geom_line()+
+  labs(x="year", y="Monthy evapotranspiration (in)")
+
+# fallow / idle ET time series
+fallow_ts <- ts(fallow$ET.in, # data
+                    start = c(2016,1), #start year 2016, month 1
+                    #first number is unit of time and second is observations within a unit
+                    frequency= 12) # frequency of observations in a unit
+
+# decompose fallow / idle ET time series
+fallow_dec <- decompose(fallow_ts)
+# plot decomposition
+plot(fallow_dec)
+
+
+
+# Corn
+
+# average fields for each month for corn
+corn <- ETdat %>% # ET data
+  filter(crop == "Corn") %>% # only use Corn fields
+  group_by(date) %>% # calculate over each date
+  summarise(ET.in = mean(Ensemble.ET, na.rm=TRUE)) # average fields
+
+# visualize the data
+ggplot(corn, aes(x=ymd(date),y=ET.in))+
+  geom_point()+
+  geom_line()+
+  labs(x="year", y="Monthy evapotranspiration (in)")
+
+# corn ET time series
+corn_ts <- ts(corn$ET.in, # data
+                start = c(2016,1), #start year 2016, month 1
+                #first number is unit of time and second is observations within a unit
+                frequency= 12) # frequency of observations in a unit
+
+# decompose corn ET time series
+corn_dec <- decompose(corn_ts)
+# plot decomposition
+plot(corn_dec)
+
+
+
+# Grapes
+
+# average fields for each month for Grapes
+grapes <- ETdat %>% # ET data
+  filter(crop == "Grapes (Table/Raisin)") %>% # only use grape fields
+  group_by(date) %>% # calculate over each date
+  summarise(ET.in = mean(Ensemble.ET, na.rm=TRUE)) # average fields
+
+# visualize the data
+ggplot(grapes, aes(x=ymd(date),y=ET.in))+
+  geom_point()+
+  geom_line()+
+  labs(x="year", y="Monthy evapotranspiration (in)")
+
+# grapes ET time series
+grapes_ts <- ts(grapes$ET.in, # data
+              start = c(2016,1), #start year 2016, month 1
+              #first number is unit of time and second is observations within a unit
+              frequency= 12) # frequency of observations in a unit
+
+# decompose grapes ET time series
+grapes_dec <- decompose(grapes_ts)
+# plot decomposition
+plot(grapes_dec)
+
+
+
+
+# Question #3
+# Design an autoregressive model for pistachios
+
+
+
+
+# and fallow/idle fields
 
 
 
