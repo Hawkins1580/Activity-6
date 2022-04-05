@@ -29,24 +29,19 @@ ggplot(almond, aes(x=ymd(date),y=ET.in))+
   geom_line()+
   labs(x="year", y="Monthy evapotranspiration (in)")
 
-
-
 # almond ET time series
 almond_ts <- ts(almond$ET.in, # data
                 start = c(2016,1), #start year 2016, month 1
                 #first number is unit of time and second is observations within a unit
                 frequency= 12) # frequency of observations in a unit
 
-
 # decompose almond ET time series
 almond_dec <- decompose(almond_ts)
 # plot decomposition
 plot(almond_dec)
 
-
 acf(na.omit(almond_ts), # remove missing data
     lag.max = 24) # look at 2 years (24 months)
-
 
 pacf.plot <- pacf(na.omit(almond_ts))
 
@@ -113,20 +108,15 @@ ggplot() +
 # Use the transformation and design a regression analysis to present to water managers about the impact of reservoir characteristics on carbon dioxide fluxes. 
 # In designing your regression, you should consider the environmental conditions that impact carbon dioxide fluxes, the availability of data, and the assumptions of ordinary least squares regression
 
-
-# Reservoir Characteristics that Affects CO2 Flux
-# depth of the reservoir, age of the reservoir, chlorophyll A measurements, 
-# surface area, volume, precipitation, runoff
-
-ghg$NEW.co2 <- ((1)/(ghg$co2+1000))
-
-
 # log transformations 
-ghg$log.ch4 <- log(ghg$ch4+1)
 ghg$log.age <- log(ghg$age)
 ghg$log.DIP <- log(ghg$DIP+1)
 ghg$log.precip <- log(ghg$precipitation)
 ghg$log.SA <- log(ghg$surface.area)
+ghg$log.MeanDepth <- log(ghg$mean.depth)
+ghg$log.airTemp <- log(ghg$airTemp)
+
+
 
 unique(ghg$Region)
 
@@ -142,14 +132,80 @@ ghg$AlpineV <- ifelse(ghg$Alpine == "yes",1,0)
 # binary variable for known hydropower
 ghg$HydroV <- ifelse(ghg$hydropower == "yes",1,0)
 
-mod.QUESTION1 <- lm(NEW.co2 ~ mean.depth+
-                 log.precip+
-                 log.SA+
-                 log.age+
-                 log.DIP+
-                 log.precip, data=ghg)
+# Reservoir Characteristics that Affects CO2 Flux
+# depth of the reservoir, age of the reservoir, chlorophyll A measurements, 
+# surface area, volume, precipitation, runoff
 
+ghg$NEW.co2 <- ((1)/(ghg$co2+1000))
+
+ggplot(ghg, aes(x=co2)) + 
+  geom_histogram(binwidth=100)
+
+ggplot(ghg, aes(x=NEW.co2)) + 
+  geom_histogram(binwidth=.0001)
+
+# Visualizing data to see if I need to make transformations 
+ggplot(ghg, aes(x=mean.depth, y=NEW.co2)) + geom_point()
+ggplot(ghg, aes(x=log.MeanDepth, y=NEW.co2)) + geom_point()
+
+ggplot(ghg, aes(x=surface.area, y=NEW.co2)) + geom_point()
+ggplot(ghg, aes(x=log.SA, y=NEW.co2)) + geom_point()
+
+ggplot(ghg, aes(x=age, y=NEW.co2)) + geom_point()
+ggplot(ghg, aes(x=log.age, y=NEW.co2)) + geom_point()
+
+ggplot(ghg, aes(x=DIP, y=NEW.co2)) + geom_point()
+ggplot(ghg, aes(x=log.DIP, y=NEW.co2)) + geom_point()
+
+ggplot(ghg, aes(x=precipitation, y=NEW.co2)) + geom_point()
+ggplot(ghg, aes(x=log.precip, y=NEW.co2)) + geom_point()
+
+ggplot(ghg, aes(x=airTemp, y=NEW.co2)) + geom_point()
+ggplot(ghg, aes(x=log.airTemp, y=NEW.co2)) + geom_point()
+
+
+mod.QUESTION1 <- lm(NEW.co2 ~ mean.depth+
+                      log.SA+
+                      log.age+
+                      log.DIP+
+                      log.precip+ airTemp, data=ghg)
 summary(mod.QUESTION1)
+
+# Isolating residuals and fitted values
+res.full <- rstandard(mod.QUESTION1)
+fit.full <- fitted.values(mod.QUESTION1)
+
+# Checking for normality of residuals 
+qqnorm(res.full, pch=19, col="grey50")
+qqline(res.full)
+
+# Checking assumptions 2 through 4 with residual plot
+plot(fit.full,res.full, pch=19, col="grey50")
+abline(h=0)
+
+# shapiro-wilks test
+shapiro.test(res.full)
+
+# Checking for Multicollinearity of explanatory variables
+reg.data <- data.frame(ghg$mean.depth,
+                       ghg$log.SA,
+                       ghg$log.age,
+                       ghg$log.DIP,
+                       ghg$log.precip,
+                       ghg$airTemp)
+# make a correlation matrix 
+chart.Correlation(reg.data, histogram=TRUE, pch=19)
+
+# run stepwise
+full.step <- ols_step_forward_aic(mod.QUESTION1)
+# view table
+full.step
+
+# check full model
+full.step$model
+
+# plot AIC over time
+plot(full.step)
 
 # exporting regression
 regTable <- summary(mod.QUESTION1)$coefficients
