@@ -168,7 +168,8 @@ mod.QUESTION1 <- lm(NEW.co2 ~ mean.depth+
                       log.SA+
                       log.age+
                       log.DIP+
-                      log.precip+ airTemp, data=ghg)
+                      log.precip+ 
+                      airTemp, data = ghg)
 summary(mod.QUESTION1)
 
 # Isolating residuals and fitted values
@@ -193,6 +194,7 @@ reg.data <- data.frame(ghg$mean.depth,
                        ghg$log.DIP,
                        ghg$log.precip,
                        ghg$airTemp)
+
 # make a correlation matrix 
 chart.Correlation(reg.data, histogram=TRUE, pch=19)
 
