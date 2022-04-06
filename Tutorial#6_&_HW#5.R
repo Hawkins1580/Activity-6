@@ -5,7 +5,7 @@ ETdat <- read.csv("/cloud/project/activity06/ETdata.csv")
 ghg <- read.csv("/cloud/project/activity05/Deemer_GHG_Data.csv")
 
 # Installing Packages
-# install.packages(c("dplyr","ggplot2","olsrr", "PerformanceAnalytics"))
+# install.packages(c("dplyr", "ggplot2", "olsrr", "PerformanceAnalytics"))
 # install.packages(c("lubridate", "forecast"))
 
 library(dplyr)
@@ -194,7 +194,6 @@ reg.data <- data.frame(ghg$mean.depth,
                        ghg$log.DIP,
                        ghg$log.precip,
                        ghg$airTemp)
-
 # make a correlation matrix 
 chart.Correlation(reg.data, histogram=TRUE, pch=19)
 
@@ -213,8 +212,6 @@ plot(full.step)
 regTable <- summary(mod.QUESTION1)$coefficients
 # write to file then click more>export
 write.csv(regTable, "/cloud/project/reg_out.csv")
-
-
 
 
 
